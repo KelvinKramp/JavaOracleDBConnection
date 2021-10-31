@@ -7,8 +7,7 @@ as shown at http://oss.oracle.com/licenses/upl */
  The code sample demonstrates establishing a connection to Autonomous Database (ATP/ADW) using
  Oracle JDBC driver and Universal Connection Pool (UCP). It does the following.  
  
- (a) Set the connection factory class name to 
- oracle.jdbc.pool.OracleDataSource before getting a connection.   
+ (a)  
  (b) Set the connection pool properties(e.g.,minPoolSize, maxPoolSize). 
  (c) Get the connection and perform some database operations. 
  For a quick test, the sample retrieves 20 records from the Sales History (SH) schema 
@@ -35,6 +34,11 @@ as shown at http://oss.oracle.com/licenses/upl */
  MODIFIED    (MM/DD/YY)
  nbsundar    11/09/2020 - Creation 
  */
+// #######################################################################################
+// Retrieved from quick start QuickStart Java applications with Oracle Autonomous Database
+// https://www.oracle.com/database/technologies/getting-started-using-jdbc.html
+// #######################################################################################
+
 package com.oracle.jdbctest;
 
 import java.sql.Connection;
@@ -57,10 +61,11 @@ public class ADBQuickStart {
     // to pass TNS_ADMIN as part of a connection URL.
     // TNS_ADMIN - Should be the path where the client credentials zip (wallet_dbname.zip) file is downloaded. 
     // dbname_medium - It is the TNS alias present in tnsnames.ora.
-    final String DB_URL="jdbc:oracle:thin:@javadbtest_high?TNS_ADMIN=/Users/kelvinkramp/DatabaseWallets/Wallet_JavaDBTest";
+    final String DB_URL="";
     // Update the Database Username and Password to point to your Autonomous Database
-    final String DB_USER = "ADMIN";
-    final String DB_PASSWORD = "R*7j2q67XW!fWKp" ;
+    final String DB_USER = "";
+    final String DB_PASSWORD = "" ;
+    // Use OracleDataSource as a datasource object. A DataSource object is a factory for Connection objects. 
     final String CONN_FACTORY_CLASS_NAME="oracle.jdbc.pool.OracleDataSource";
     
     // For security purposes, you must enter the password through the console 
@@ -74,11 +79,22 @@ public class ADBQuickStart {
        System.out.println("ADBQuickStart - Exception occurred : " + e.getMessage());
        System.exit(1);
     } 
-    // Get the PoolDataSource for UCP
+    
+    // Get the PoolDataSource for UCP (Universal Connection Pool)
+    // In software engineering, a connection pool is a cache of database connections 
+    // maintained so that the connections can be reused when future requests to the 
+    // database are required. Connection pools are used to enhance the performance of 
+    // executing commands on a database.
     PoolDataSource pds = PoolDataSourceFactory.getPoolDataSource();
 
-    // Set the connection factory first before all other properties
+    // Factory pattern is used to create instances of different classes of the same superclass. For instance
+    // a random number generator that is used to pick a type (subclass) of enemy (superclass). A class is
+    // chosen at runtime during the game. For more info see:  https://www.youtube.com/watch?v=ub0DXaeV6hA
+    // Below line sets the data source pool class instance name (connection factory name) to the factory
+    // for connection objects.
+    // oracle.jdbc.pool.OracleDataSource. 
     pds.setConnectionFactoryClassName(CONN_FACTORY_CLASS_NAME);
+    // Set other properties
     pds.setURL(DB_URL);
     pds.setUser(DB_USER);
     pds.setPassword(DB_PASSWORD);
@@ -99,9 +115,9 @@ public class ADBQuickStart {
 
     // Get the database connection from UCP.
     try (Connection conn = pds.getConnection()) {
-      System.out.println("Available connections after checkout: "
+      System.out.println("Available connections after checkin: "
           + pds.getAvailableConnectionsCount());
-      System.out.println("Borrowed connections after checkout: "
+      System.out.println("Borrowed connections after checkin: "
           + pds.getBorrowedConnectionsCount());       
       // Perform a database operation
       doSQLWork(conn);
